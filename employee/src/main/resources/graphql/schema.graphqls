@@ -1,0 +1,21 @@
+type Query {
+    employees: [Employee]
+    employeeById(id : ID!): Employee
+    employeesGraphQL: [Employee]
+
+
+}
+
+type Mutation {
+    addEmployee(employee: EmployeeInput): Employee
+}
+
+input EmployeeInput {
+    employeeName: String!
+}
+
+type Employee {
+    id: ID!
+    employeeName: String!
+    companyName: String!
+}

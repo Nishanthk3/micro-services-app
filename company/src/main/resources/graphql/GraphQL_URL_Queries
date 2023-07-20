@@ -1,0 +1,39 @@
+http://localhost:8081/graphiql?path=/graphql
+
+Thru postman
+http://localhost:8081/graphql
+
+
+Examples
+
+query Employees {
+    employees {
+        id
+        employeeName
+        companyName
+    }
+    employeeById(id: 1) {
+        id
+        employeeName
+        companyName
+    }
+}
+
+examples
+
+query Employees2 {
+    employees {
+        id
+        employeeName
+        companyName
+    }
+}
+
+examples
+
+mutation AddEmployee {
+    addEmployee(employee: {employeeName: "New employee"}) {
+        id
+
+    }
+}

@@ -1,0 +1,30 @@
+server:
+  port: 8222
+
+eureka:
+  client:
+    # register-with-eureka: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    hostname: localhost
+
+spring:
+  application:
+    name: gateway
+  config:
+    import: optional:configserver:http://localhost:8888
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: employee
+          uri: http://localhost:8080
+          predicates:
+            - Path=/employee/**
+        - id: company
+          uri: http://localhost:8081
+          predicates:
+            - Path=/company/**
