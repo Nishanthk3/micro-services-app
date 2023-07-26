@@ -1,13 +1,13 @@
 # micro-services-app
-This is a Spring Boot Applicaiton with an in built Tomcat Server. Multiple micro apps connect to the same DB.
+A Spring Boot application with an in-built Tomcat Server. Multiple micro apps connect to the same DB.
 
 ## Spring Gateway Service
-- Routes / Paths can be configured in the .yml file in the gaterway service for any different micro services
+- Routes / Paths can be configured in the .yml file in the gateway service for any different microservices
 
 ## Spring Discovery Service (Eureka)
 - Healthcheck service
 
-## Spring Config Server (for relatime config updates)
+## Spring Config Server (for real-time config updates)
 - Externalizing the application config properties
 
 ## Spring Open Feign 
@@ -15,12 +15,12 @@ This is a Spring Boot Applicaiton with an in built Tomcat Server. Multiple micro
 - Declarative REST Client: Feign creates a dynamic implementation of an interface decorated with JAX-RS or Spring MVC annotations
 
 ## Spring Data JPA
-- Using Hibernate : a JPA Implementation
+- Using Hibernate: a JPA Implementation
 
-## Tracing between micro services
+## Tracing between microservices
 - Uses [Micrometer](https://micrometer.io/docs/tracing) for Tracing
 - Uses [ZipKin Server](https://zipkin.io/) to log TraceId
-- Uses [feign-micrometer](https://mvnrepository.com/artifact/io.github.openfeign/feign-micrometer) for passing TraceId between micro services
+- Uses [feign-micrometer](https://mvnrepository.com/artifact/io.github.openfeign/feign-micrometer) for passing TraceId between microservices
 
 ## Spring for GraphQL
 
