@@ -2,7 +2,7 @@
 This is a Spring Boot Applicaiton with an in built Tomcat Server. Multiple micro apps connect to the same DB.
 
 ## Spring Gateway Service
-- Routes / Paths can set in the yml file on the gaterway service for any different micro services
+- Routes / Paths can be configured in the .yml file in the gaterway service for any different micro services
 
 ## Spring Discovery Service (Eureka)
 - Healthcheck service
