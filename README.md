@@ -27,4 +27,5 @@ A Spring Boot application with an in-built Tomcat Server. Multiple micro apps co
 ## All Services required before starting the app
 ### Docker service
 - [Zipkin Docker](https://hub.docker.com/r/openzipkin/zipkin)
-- Run this [docker_compose](https://github.com/Nishanthk3/Mysql-Debezium-connector) file for DB 
+- Run this [docker_compose](https://github.com/Nishanthk3/Mysql-Debezium-connector) file for DB
+- Run this [docker-compose-dynamodb](https://github.com/Nishanthk3/aws-dynamodb) file for Dynamo DB
