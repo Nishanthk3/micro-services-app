@@ -1,8 +1,9 @@
 package com.example.webapp.dynamodb.entity;
 
 import com.example.webapp.dynamodb.service.DynamoDBService;
-import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
@@ -15,18 +16,17 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
+@Slf4j
+@Primary
 public class TestDaoImpl implements TestDao {
 
     private static final String TEST_TABLE_NAME = "test";
+
+    @Autowired
     private DynamoDbClient client;
 
     @Autowired
     private DynamoDBService dynamoDBService;
-
-    @PostConstruct
-    public void init() {
-        client = dynamoDBService.getDynamoDbClient();
-    }
 
     @Override
     public Mono<Void> put(TestDO test) {
@@ -53,7 +53,7 @@ public class TestDaoImpl implements TestDao {
 
         try {
             PutItemResponse response = ddb.putItem(request);
-            System.out.println(tableName + " was successfully updated. The request id is " + response.responseMetadata().requestId());
+            log.info("{} was successfully updated. The request id is {} ", tableName, response.responseMetadata().requestId());
 
         } catch (ResourceNotFoundException e) {
             System.err.format("Error: The Amazon DynamoDB table \"%s\" can't be found.\n", tableName);
@@ -80,12 +80,13 @@ public class TestDaoImpl implements TestDao {
         try {
             // If there is no matching item, GetItem does not return any data.
             Map<String, AttributeValue> returnedItem = ddb.getItem(request).item();
-            if (returnedItem.isEmpty()) System.out.format("No item found with the key %s!\n", key);
-            else {
+            if (returnedItem.isEmpty()) {
+                log.info("No item found with the key {}!}", key);
+            } else {
                 Set<String> keys = returnedItem.keySet();
-                System.out.println("Amazon DynamoDB table attributes: \n");
+                log.info("Amazon DynamoDB table attributes: \n");
                 for (String key1 : keys) {
-                    System.out.format("%s: %s\n", key1, returnedItem.get(key1).toString());
+                    log.info("{}: {}", key1, returnedItem.get(key1).toString());
                 }
             }
 
