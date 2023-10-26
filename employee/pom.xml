@@ -83,11 +83,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-graphql</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.graphql-java-generator</groupId>-->
-<!--            <artifactId>graphql-java-runtime</artifactId>-->
-<!--            <version>1.18</version>-->
-<!--        </dependency>-->
 
         <!-- logback purposes -->
         <dependency>
@@ -146,6 +141,19 @@
             <artifactId>aws-java-sdk-dynamodb</artifactId>
             <version>1.12.560</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <version>3.1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>6.2.6.RELEASE</version>
+        </dependency>
+
 
 
     </dependencies>
