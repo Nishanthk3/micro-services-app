@@ -1,6 +1,7 @@
 package com.example.webapp.redis;
 
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +28,18 @@ public class RedisConfig {
         return redisTemplate;
     }
 
+    /**
+     * https://lettuce.io/core/release/reference/ 4.3.3. Examples
+     */
     @Bean
     RedisClient redisClient() {
-        RedisClient redisClient = RedisClient
-                .create("redis://password@localhost:6379/");
-        log.info("RedisClient: {}", redisClient);
+//        RedisClient redisClient = RedisClient
+//                .create("redis://password@localhost:6379/");
+//        log.info("RedisClient : {}", redisClient);
+
+        RedisClient redisClient = RedisClient.create(RedisURI.create("localhost", 6379));
+        log.info("RedisClient with Redis URI: {}", redisClient);
+
         return redisClient;
     }
-
 }

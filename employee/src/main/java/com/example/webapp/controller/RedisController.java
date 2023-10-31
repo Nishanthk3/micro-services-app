@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -32,6 +33,11 @@ public class RedisController {
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         syncCommands = connection.sync();
         asyncCommands = connection.async();
+    }
+
+    @GetMapping(path = "/keys")
+    public List<String> getKeys() {
+        return syncCommands.keys("*");
     }
 
     @GetMapping(path = "/key/{key}")
