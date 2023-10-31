@@ -29,7 +29,8 @@ public class RedisConfig {
     }
 
     /**
-     * https://lettuce.io/core/release/reference/ 4.3.3. Examples
+     * https://lettuce.io/core/release/reference/ - 4.3.3. Examples
+     * https://github.com/lettuce-io/lettuce-core/wiki/Asynchronous-API
      */
     @Bean
     RedisClient redisClient() {

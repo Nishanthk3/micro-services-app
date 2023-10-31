@@ -1,19 +1,26 @@
 package com.example.webapp.controller;
 
 import com.example.webapp.redis.Cache;
+import com.example.webapp.redis.Campaign;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.codec.ByteArrayCodec;
+import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.codec.StringCodec;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -27,12 +34,17 @@ public class RedisController {
     RedisClient redisClient;
     RedisCommands<String, String> syncCommands;
     RedisAsyncCommands<String, String> asyncCommands;
+    RedisCommands<String, byte[]> syncByteArrayCommands;
+    RedisCodec<String, byte[]> codec = RedisCodec.of(new StringCodec(), new ByteArrayCodec());
 
     @PostConstruct
     public void init() {
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         syncCommands = connection.sync();
         asyncCommands = connection.async();
+
+        StatefulRedisConnection<String, byte[]> connection1 = redisClient.connect(codec);
+        syncByteArrayCommands = connection1.sync();
     }
 
     @GetMapping(path = "/keys")
@@ -79,5 +91,18 @@ public class RedisController {
         return future.get();
     }
 
+    @GetMapping(path = "/serialized/{key}")
+    public Campaign get(@PathVariable String key) {
+        byte[] bytes = syncByteArrayCommands.get(key);
+        Campaign campaign = SerializationUtils.deserialize(bytes);
+        return campaign;
+    }
 
+    @PostMapping(path = "/serialized", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public String addCampaign(@RequestBody Campaign campaign) {
+        log.info("Campaign: " + campaign.toString());
+        String uuid = UUID.randomUUID().toString();
+        syncByteArrayCommands.set(uuid, SerializationUtils.serialize(campaign));
+        return uuid;
+    }
 }
