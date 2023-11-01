@@ -1,6 +1,7 @@
 package com.example.webapp.dynamodb.service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -25,8 +26,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product get(String id, String name) {
+    public Product getByPKAndSK(String id, String name) {
         return dynamoDBMapper.load(Product.class, id, name);
+    }
+
+    @Override
+    public List<Product> getById(String id) {
+        Product product = new Product();
+        product.setProductId(id);
+        DynamoDBQueryExpression<Product> queryExpression = new DynamoDBQueryExpression<Product>()
+                .withHashKeyValues(product);
+        List<Product> myCollection = dynamoDBMapper.query(Product.class, queryExpression);
+        return myCollection;
     }
 
     @Override
@@ -41,12 +52,12 @@ public class ProductServiceImpl implements ProductService {
         dynamoDBMapper.save(product, new DynamoDBSaveExpression().withExpectedEntry("productId", new ExpectedAttributeValue(
                 new AttributeValue().withS(id)
         )));
-        return get(id, product.getProductName());
+        return getByPKAndSK(id, product.getProductName());
     }
 
     @Override
     public boolean delete(String id, String name) {
-        Product product = get(id, name);
+        Product product = getByPKAndSK(id, name);
         dynamoDBMapper.delete(product);
         return true;
     }

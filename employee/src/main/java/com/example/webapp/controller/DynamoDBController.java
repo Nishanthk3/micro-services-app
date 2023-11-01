@@ -36,9 +36,14 @@ public class DynamoDBController {
         return productService.getAll();
     }
 
+    @GetMapping(path = "/product/{id}")
+    public Product getProductById(@PathVariable String id) {
+        return productService.getById(id).get(0);
+    }
+
     @GetMapping(path = "/product/{id}/{name}")
     public Product getProduct(@PathVariable String id, @PathVariable(required = true) String name) {
-        return productService.get(id, name);
+        return productService.getByPKAndSK(id, name);
     }
 
     @PostMapping(path = "/product")
