@@ -1,12 +1,16 @@
 package com.example.webapp.controller;
 
 import com.example.webapp.redis.Cache;
+import com.example.webapp.redis.CacheExpirationType;
 import com.example.webapp.redis.Campaign;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import io.lettuce.core.codec.ByteArrayCodec;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.StringCodec;
@@ -18,8 +22,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -29,22 +35,36 @@ import java.util.concurrent.ExecutionException;
 public class RedisController {
 
     @Autowired
-    RedisTemplate redisTemplate;
+    private RedisTemplate redisTemplate;
     @Autowired
-    RedisClient redisClient;
-    RedisCommands<String, String> syncCommands;
-    RedisAsyncCommands<String, String> asyncCommands;
-    RedisCommands<String, byte[]> syncByteArrayCommands;
+    private RedisClient redisClient;
+
+    @Autowired
+    private RedisClusterClient redisClusterClient;
+
+    private RedisCommands<String, String> syncCommands;
+    private RedisAsyncCommands<String, String> asyncCommands;
+    private RedisCommands<String, byte[]> syncByteArrayCommands;
+
+    private StatefulRedisClusterConnection<String, byte[]> statefulRedisClusterConnection;
+    private RedisAdvancedClusterCommands<String, byte[]> redisAdvancedClusterCommands;
     RedisCodec<String, byte[]> codec = RedisCodec.of(new StringCodec(), new ByteArrayCodec());
 
     @PostConstruct
     public void init() {
+        // Standalone Redis settings
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         syncCommands = connection.sync();
         asyncCommands = connection.async();
 
         StatefulRedisConnection<String, byte[]> connection1 = redisClient.connect(codec);
         syncByteArrayCommands = connection1.sync();
+
+        // Clustered Redis settings
+        statefulRedisClusterConnection = redisClusterClient.connect(codec);
+        log.info("statefulRedisClusterConnection: {}", statefulRedisClusterConnection);
+        redisAdvancedClusterCommands = statefulRedisClusterConnection.sync();
+        log.info("redisAdvancedClusterCommands: {}", redisAdvancedClusterCommands);
     }
 
     @GetMapping(path = "/keys")
@@ -103,6 +123,21 @@ public class RedisController {
         log.info("Campaign: " + campaign.toString());
         String uuid = UUID.randomUUID().toString();
         syncByteArrayCommands.set(uuid, SerializationUtils.serialize(campaign));
+        return uuid;
+    }
+
+    @GetMapping(path = "/clustered/{key}")
+    public Object fromClusteredRedis(@PathVariable Object key) {
+        byte[] bytes = redisAdvancedClusterCommands.get(key.toString());
+        Optional<Object> object = Optional.ofNullable(SerializationUtils.deserialize(bytes));
+        return object.isPresent() ? object.get() : null;
+    }
+
+    @PostMapping(path = "/clustered", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public String toClusteredRedis(@RequestBody Object object) {
+        String uuid = UUID.randomUUID().toString();
+        System.out.println(object.toString());
+        redisAdvancedClusterCommands.setex(uuid, CacheExpirationType.cacheHour.getExpiration(), SerializationUtils.serialize((Serializable) object));
         return uuid;
     }
 }
